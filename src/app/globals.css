@@ -1,0 +1,216 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #0a0d12;
+  --color-surface: #10141b;
+  --color-surface-2: #161b24;
+  --color-line: #222834;
+  --color-line-soft: #1a1f29;
+  --color-ink: #e8ecf2;
+  --color-ink-muted: #94a0b3;
+  --color-ink-faint: #64708a;
+  --color-accent: #4f8cff;
+  --color-accent-soft: #1c2a44;
+  --color-up: #34d399;
+  --color-down: #fb7185;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+
+  /* Slim scrollbars keep dense data tables from feeling heavy. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #29313f;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a465a;
+    background-clip: content-box;
+  }
+
+  input,
+  select,
+  textarea {
+    color-scheme: dark;
+  }
+}
+
+@layer components {
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 0.875rem;
+  }
+
+  .card-hover {
+    transition: border-color 150ms ease, background-color 150ms ease;
+  }
+  .card-hover:hover {
+    border-color: #2e3646;
+    background-color: var(--color-surface-2);
+  }
+
+  .field {
+    width: 100%;
+    background-color: var(--color-canvas);
+    border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color 140ms ease, box-shadow 140ms ease;
+  }
+  .field:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+  }
+  .field::placeholder {
+    color: var(--color-ink-faint);
+  }
+
+  .label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+    margin-bottom: 0.375rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 140ms ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background-color: var(--color-accent);
+    color: #06121f;
+    font-weight: 600;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: #6ba0ff;
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--color-ink-muted);
+    border: 1px solid var(--color-line);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    color: var(--color-ink);
+    border-color: #2e3646;
+    background-color: var(--color-surface-2);
+  }
+
+  .btn-danger {
+    background-color: rgba(251, 113, 133, 0.1);
+    color: var(--color-down);
+    border: 1px solid rgba(251, 113, 133, 0.25);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background-color: rgba(251, 113, 133, 0.18);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface-2);
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+  }
+
+  .table-head {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-faint);
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 220ms ease-out both;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-surface-2);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  animation: shimmer 1.4s infinite;
+}

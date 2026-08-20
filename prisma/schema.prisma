@@ -1,0 +1,319 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Account settings
+  startingBalance Decimal @default(10000) @db.Decimal(18, 2)
+  currency        String  @default("USD")
+  timezone        String  @default("UTC")
+  dashboardLayout Json?
+
+  trades        Trade[]
+  instruments   Instrument[]
+  strategies    Strategy[]
+  setups        Setup[]
+  tags          Tag[]
+  mistakes      MistakeType[]
+  sessions      TradingSession[]
+  dailyJournals DailyJournal[]
+  periodReviews PeriodReview[]
+  goals         Goal[]
+  authSessions  AuthSession[]
+}
+
+model AuthSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Instrument {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol    String
+  name      String?
+  market    String  @default("FUTURES") // FUTURES | FOREX | STOCKS | CRYPTO | INDICES | COMMODITIES
+  tickSize      Decimal? @db.Decimal(18, 8)
+  tickValue     Decimal? @db.Decimal(18, 8)
+  isDemo    Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  trades Trade[]
+
+  @@unique([userId, symbol])
+  @@index([userId])
+}
+
+model Strategy {
+  id          String  @id @default(cuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  isDemo      Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  trades Trade[]
+  setups Setup[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Setup {
+  id          String  @id @default(cuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategyId  String?
+  strategy    Strategy? @relation(fields: [strategyId], references: [id], onDelete: SetNull)
+  name        String
+  description String?
+  isDemo      Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  trades Trade[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model TradingSession {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  startHour Int     @default(0) // UTC hour
+  endHour   Int     @default(23)
+  isDemo    Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  trades Trade[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Tag {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  color     String @default("slate")
+  isDemo    Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  trades TradeTag[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model MistakeType {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  isDemo    Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  trades TradeMistake[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Trade {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic
+  tradeDate DateTime  @db.Date
+  entryTime DateTime
+  exitTime  DateTime?
+
+  instrumentId String?
+  instrument   Instrument? @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
+  symbol       String
+  market       String      @default("FUTURES")
+  direction    String // LONG | SHORT
+
+  // Prices & size
+  positionSize Decimal  @db.Decimal(18, 8)
+  entryPrice   Decimal  @db.Decimal(18, 8)
+  exitPrice    Decimal? @db.Decimal(18, 8)
+  stopLoss     Decimal? @db.Decimal(18, 8)
+  takeProfit   Decimal? @db.Decimal(18, 8)
+
+  // Financials
+  grossPnl    Decimal @default(0) @db.Decimal(18, 2)
+  fees        Decimal @default(0) @db.Decimal(18, 2)
+  netPnl      Decimal @default(0) @db.Decimal(18, 2)
+  riskAmount  Decimal? @db.Decimal(18, 2)
+  rewardAmount Decimal? @db.Decimal(18, 2)
+  plannedRr   Decimal? @db.Decimal(18, 4)
+  rMultiple   Decimal? @db.Decimal(18, 4)
+  pnlPercent  Decimal? @db.Decimal(18, 4)
+  result      String  @default("BREAKEVEN") // WIN | LOSS | BREAKEVEN
+  manualPnl   Boolean @default(false)
+
+  // Classification
+  strategyId      String?
+  strategy        Strategy? @relation(fields: [strategyId], references: [id], onDelete: SetNull)
+  setupId         String?
+  setup           Setup?    @relation(fields: [setupId], references: [id], onDelete: SetNull)
+  sessionId       String?
+  session         TradingSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  marketCondition String?
+
+  // Psychology
+  confidenceBefore Int?
+  emotionBefore    String?
+  emotionAfter     String?
+  followedPlan     Boolean?
+  setupQuality     Int?
+  executionQuality Int?
+  disciplineScore  Int?
+
+  // Journal
+  thesis        String?
+  reasonEntry   String?
+  reasonExit    String?
+  whatWentWell  String?
+  whatWentWrong String?
+  lesson        String?
+  notes         String?
+
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tags     TradeTag[]
+  mistakes TradeMistake[]
+  images   TradeImage[]
+
+  @@index([userId, tradeDate])
+  @@index([userId, entryTime])
+  @@index([userId, symbol])
+  @@index([userId, setupId])
+  @@index([userId, isDemo])
+}
+
+model TradeTag {
+  tradeId String
+  trade   Trade  @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  tagId   String
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([tradeId, tagId])
+  @@index([tagId])
+}
+
+model TradeMistake {
+  tradeId   String
+  trade     Trade       @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  mistakeId String
+  mistake   MistakeType @relation(fields: [mistakeId], references: [id], onDelete: Cascade)
+
+  @@id([tradeId, mistakeId])
+  @@index([mistakeId])
+}
+
+model TradeImage {
+  id        String   @id @default(cuid())
+  tradeId   String
+  trade     Trade    @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  url       String   @db.Text
+  caption   String?
+  phase     String   @default("OTHER") // BEFORE | ENTRY | DURING | EXIT | HTF | OTHER
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([tradeId])
+}
+
+model DailyJournal {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date   DateTime @db.Date
+
+  followedPlan  Boolean?
+  didWell       String?
+  mistakesMade  String?
+  biggestLesson String?
+  improveTomorrow String?
+  psychologyNotes String?
+  overtraded    Boolean?
+  rating        Int?
+  notes         String?
+
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model PeriodReview {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  period String // WEEKLY | MONTHLY
+  periodStart DateTime @db.Date
+
+  wentWell      String?
+  wentWrong     String?
+  biggestMistake String?
+  bestSetup     String?
+  worstSetup    String?
+  lessons       String?
+  nextFocus     String?
+  rating        Int?
+
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, period, periodStart])
+  @@index([userId])
+}
+
+model Goal {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title     String
+  metric    String // NET_PNL | WIN_RATE | TRADE_COUNT | MAX_LOSS | AVG_R | DISCIPLINE | JOURNAL_COMPLETION | TOTAL_R
+  period    String // DAILY | WEEKLY | MONTHLY | YEARLY
+  target    Decimal @db.Decimal(18, 4)
+  direction String  @default("AT_LEAST") // AT_LEAST | AT_MOST
+  active    Boolean @default(true)
+  notes     String?
+
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
