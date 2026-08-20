@@ -12,6 +12,7 @@ export const tradeInclude = {
   session: { select: { id: true, name: true } },
   tags: { include: { tag: { select: { id: true, name: true, color: true } } } },
   mistakes: { include: { mistake: { select: { id: true, name: true } } } },
+  confluences: { include: { confluence: { select: { id: true, name: true } } } },
   _count: { select: { images: true } },
 } satisfies Prisma.TradeInclude;
 
@@ -65,6 +66,7 @@ export function serializeTrade(trade: TradeWithRelations): TradeRecord {
     isDemo: trade.isDemo,
     tags: trade.tags.map((t) => t.tag),
     mistakes: trade.mistakes.map((m) => m.mistake),
+    confluences: trade.confluences.map((c) => c.confluence),
     imageCount: trade._count.images,
   };
 }
@@ -96,6 +98,9 @@ export function buildTradeWhere(userId: string, filters: TradeFilters): Prisma.T
   }
   if (filters.mistakeIds?.length) {
     and.push({ mistakes: { some: { mistakeId: { in: filters.mistakeIds } } } });
+  }
+  if (filters.confluenceIds?.length) {
+    and.push({ confluences: { some: { confluenceId: { in: filters.confluenceIds } } } });
   }
 
   if (filters.rMin !== undefined || filters.rMax !== undefined) {
@@ -184,13 +189,14 @@ function buildOrderBy(sortBy: string, sortDir: "asc" | "desc"): Prisma.TradeOrde
 
 /** Loads the reference data used to populate filter menus and forms. */
 export async function getTaxonomy(userId: string) {
-  const [instruments, strategies, setups, sessions, tags, mistakes, symbols] = await Promise.all([
+  const [instruments, strategies, setups, sessions, tags, mistakes, confluences, symbols] = await Promise.all([
     prisma.instrument.findMany({ where: { userId }, orderBy: { symbol: "asc" } }),
     prisma.strategy.findMany({ where: { userId }, orderBy: { name: "asc" } }),
     prisma.setup.findMany({ where: { userId }, orderBy: { name: "asc" } }),
     prisma.tradingSession.findMany({ where: { userId }, orderBy: { startHour: "asc" } }),
     prisma.tag.findMany({ where: { userId }, orderBy: { name: "asc" } }),
     prisma.mistakeType.findMany({ where: { userId }, orderBy: { name: "asc" } }),
+    prisma.confluence.findMany({ where: { userId }, orderBy: { name: "asc" } }),
     prisma.trade.findMany({
       where: { userId },
       select: { symbol: true },
@@ -223,6 +229,7 @@ export async function getTaxonomy(userId: string) {
     })),
     tags: tags.map((t) => ({ id: t.id, name: t.name, color: t.color })),
     mistakes: mistakes.map((m) => ({ id: m.id, name: m.name })),
+    confluences: confluences.map((c) => ({ id: c.id, name: c.name, description: c.description })),
     symbols: symbols.map((s) => s.symbol),
   };
 }
@@ -261,6 +268,7 @@ export function parseFilters(params: Record<string, string | string[] | undefine
     sessionIds: list("sessions"),
     tagIds: list("tags"),
     mistakeIds: list("mistakes"),
+    confluenceIds: list("confluences"),
     followedPlan: followedPlan === "yes" || followedPlan === "no" ? followedPlan : undefined,
     rMin: number("rMin"),
     rMax: number("rMax"),

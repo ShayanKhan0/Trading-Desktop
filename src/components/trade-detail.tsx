@@ -62,9 +62,9 @@ export function TradeDetail({
             className={cn(
               "px-5 py-4",
               trade.netPnl > 0
-                ? "bg-emerald-500/5"
+                ? "bg-up-soft/60"
                 : trade.netPnl < 0
-                  ? "bg-rose-500/5"
+                  ? "bg-down-soft/60"
                   : "bg-surface-2",
             )}
           >
@@ -73,9 +73,9 @@ export function TradeDetail({
               className={cn(
                 "num mt-1 text-3xl font-semibold tracking-tight",
                 trade.netPnl > 0
-                  ? "text-emerald-400"
+                  ? "text-up"
                   : trade.netPnl < 0
-                    ? "text-rose-400"
+                    ? "text-down"
                     : "text-ink-muted",
               )}
             >
@@ -200,10 +200,10 @@ export function TradeDetail({
                       className={cn(
                         "h-full rounded-full",
                         (score.value ?? 0) >= 8
-                          ? "bg-emerald-400"
+                          ? "bg-up"
                           : (score.value ?? 0) >= 5
                             ? "bg-accent"
-                            : "bg-rose-400",
+                            : "bg-down",
                       )}
                       style={{ width: `${((score.value ?? 0) / 10) * 100}%` }}
                     />
@@ -225,10 +225,28 @@ export function TradeDetail({
         ) : null}
 
         {/* Mistakes & tags */}
-        {trade.mistakes.length || trade.tags.length ? (
+        {trade.mistakes.length || trade.tags.length || trade.confluences.length ? (
           <Card>
-            <CardHeader title="Mistakes &amp; tags" />
+            <CardHeader title="Confluences, mistakes &amp; tags" />
             <div className="space-y-3 px-5 pb-5">
+              {trade.confluences.length ? (
+                <div>
+                  <p className="label">
+                    Confluences
+                    <span className="ml-2 font-normal text-ink-faint">
+                      {trade.confluences.length} stacked
+                    </span>
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {trade.confluences.map((confluence) => (
+                      <Badge key={confluence.id} tone="up">
+                        {confluence.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
               {trade.mistakes.length ? (
                 <div>
                   <p className="label">Mistakes</p>
@@ -303,7 +321,7 @@ export function TradeDetail({
                       type="button"
                       title="Delete screenshot"
                       onClick={() => startTransition(() => void deleteTradeImage(image.id))}
-                      className="shrink-0 rounded p-1 text-ink-faint transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                      className="shrink-0 rounded p-1 text-ink-faint transition-colors hover:bg-down-soft hover:text-down"
                     >
                       <Trash2 size={12} />
                     </button>

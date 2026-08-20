@@ -83,12 +83,12 @@ export function DrawdownChart({
                       {
                         label: "Drawdown",
                         value: formatCurrency(row.drawdown, currency),
-                        tone: "text-rose-400",
+                        tone: "text-down",
                       },
                       {
                         label: "Percent",
                         value: formatPercent(row.drawdownPercent),
-                        tone: "text-rose-400",
+                        tone: "text-down",
                       },
                     ]}
                   />

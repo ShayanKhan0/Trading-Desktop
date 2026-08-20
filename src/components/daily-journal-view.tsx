@@ -156,9 +156,9 @@ export function DailyJournalView({
                         className={cn(
                           "num text-sm font-semibold",
                           trade.netPnl > 0
-                            ? "text-emerald-400"
+                            ? "text-up"
                             : trade.netPnl < 0
-                              ? "text-rose-400"
+                              ? "text-down"
                               : "text-ink-muted",
                         )}
                       >
@@ -215,7 +215,7 @@ export function DailyJournalView({
             subtitle={formatDate(date, { weekday: "long" })}
             action={
               state?.success ? (
-                <span className="flex items-center gap-1 text-xs text-emerald-400">
+                <span className="flex items-center gap-1 text-xs text-up">
                   <CheckCircle2 size={13} /> {state.success}
                 </span>
               ) : null
@@ -291,7 +291,7 @@ export function DailyJournalView({
             <RatingInput defaultValue={journal?.rating ?? null} />
 
             {state?.error ? (
-              <p className="rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+              <p className="rounded-lg border border-down/25 bg-down-soft px-3 py-2 text-xs text-down">
                 {state.error}
               </p>
             ) : null}

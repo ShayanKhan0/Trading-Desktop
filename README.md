@@ -14,6 +14,7 @@ Built with Next.js 15 (App Router), TypeScript, Tailwind CSS v4, Prisma and Post
 - Full trade entry form with live P&L, risk, reward, planned R:R and R-multiple calculation
 - Manual P&L override for trades the maths can't model
 - Psychology scoring (confidence, setup quality, execution quality, discipline) on a 1–10 scale
+- Confluence stacking: record every reason a setup was worth taking, then see which reasons carry the edge
 - Mistake tagging, custom tags, emotions before/after, plan adherence
 - Seven journal fields per trade: thesis, entry reason, exit reason, what went well/wrong, lesson, notes
 - Multi-image screenshot attachments with drag-and-drop, phase labelling, gallery and lightbox
@@ -29,6 +30,7 @@ Built with Next.js 15 (App Router), TypeScript, Tailwind CSS v4, Prisma and Post
 - Distributions: R-multiple, winners, losers, overall P&L, trade duration
 - Breakdowns by setup, strategy, instrument, session, tag, market condition, hour of entry, day of week
 - Psychology analytics: performance banded by each 1–10 score, plus plan adherence and emotional state
+- Confluence analysis: performance per confluence, plus win rate by how many confluences were stacked
 - Mistake analysis: frequency, share of all trades, win rate and aggregate cost per mistake type
 
 **Platform**
@@ -177,7 +179,8 @@ src/
 ### Database schema
 
 15 tables: `User`, `AuthSession`, `Trade`, `Instrument`, `Strategy`, `Setup`, `TradingSession`,
-`Tag`, `TradeTag`, `MistakeType`, `TradeMistake`, `TradeImage`, `DailyJournal`, `PeriodReview`,
+`Tag`, `TradeTag`, `MistakeType`, `TradeMistake`, `Confluence`, `TradeConfluence`, `TradeImage`,
+`DailyJournal`, `PeriodReview`,
 `Goal`.
 
 Every user-owned table carries a `userId` foreign key with `onDelete: Cascade`, and queries are

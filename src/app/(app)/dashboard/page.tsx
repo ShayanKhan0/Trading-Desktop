@@ -117,7 +117,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
 
       <div className="space-y-4 p-4 sm:p-6">
         {/* Headline KPIs */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="stagger grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             label="Net P&L"
             value={formatSignedCurrency(metrics.netPnl, currency)}
@@ -148,7 +148,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         </div>
 
         {/* Secondary KPIs */}
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">
+        <div className="stagger grid grid-cols-2 gap-3 lg:grid-cols-5">
           <StatCard label="Total trades" value={metrics.totalTrades} size="sm" />
           <StatCard
             label="Avg winner"
@@ -276,7 +276,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                           {row.label === "LONG" ? "Long" : "Short"}
                         </span>
                         <span
-                          className={`num text-sm font-semibold ${row.netPnl >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+                          className={`num text-sm font-semibold ${row.netPnl >= 0 ? "text-up" : "text-down"}`}
                         >
                           {formatSignedCurrency(row.netPnl, currency)}
                         </span>

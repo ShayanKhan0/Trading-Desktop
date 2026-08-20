@@ -56,9 +56,9 @@ export function PsychologyPanel({
         <div className="card mb-4 border-accent/25 bg-accent/[0.04] p-4">
           <p className="text-sm leading-relaxed">
             Trades with a discipline score of <strong>8–10</strong> won{" "}
-            <span className="num font-semibold text-emerald-400">{formatPercent(high.winRate)}</span> of
+            <span className="num font-semibold text-up">{formatPercent(high.winRate)}</span> of
             the time at <span className="num font-semibold">{formatR(high.avgR)}</span> average, against{" "}
-            <span className="num font-semibold text-rose-400">{formatPercent(low.winRate)}</span> at{" "}
+            <span className="num font-semibold text-down">{formatPercent(low.winRate)}</span> at{" "}
             <span className="num font-semibold">{formatR(low.avgR)}</span> when discipline dropped to{" "}
             <strong>1–4</strong>.
           </p>
@@ -129,7 +129,7 @@ function BandTable({ bands, currency }: { bands: Band[]; currency: string }) {
               <td
                 className={cn(
                   "num px-3 py-2.5 text-right text-xs font-semibold",
-                  band.netPnl > 0 ? "text-emerald-400" : band.netPnl < 0 ? "text-rose-400" : "text-ink-muted",
+                  band.netPnl > 0 ? "text-up" : band.netPnl < 0 ? "text-down" : "text-ink-muted",
                 )}
               >
                 {formatSignedCurrency(band.netPnl, currency)}
@@ -137,7 +137,7 @@ function BandTable({ bands, currency }: { bands: Band[]; currency: string }) {
               <td
                 className={cn(
                   "num px-3 py-2.5 text-right text-xs",
-                  band.avgR > 0 ? "text-emerald-400" : band.avgR < 0 ? "text-rose-400" : "text-ink-muted",
+                  band.avgR > 0 ? "text-up" : band.avgR < 0 ? "text-down" : "text-ink-muted",
                 )}
               >
                 {formatR(band.avgR)}

@@ -366,6 +366,40 @@ export function breakdownByTag(trades: TradeRecord[]) {
   return summarizeBuckets(map);
 }
 
+export function breakdownByConfluence(trades: TradeRecord[], totalTrades: number) {
+  const map = new Map<string, { label: string; trades: TradeRecord[] }>();
+  for (const trade of trades) {
+    for (const confluence of trade.confluences) {
+      const bucket = map.get(confluence.id) ?? { label: confluence.name, trades: [] };
+      bucket.trades.push(trade);
+      map.set(confluence.id, bucket);
+    }
+  }
+  return summarizeBuckets(map).map((row) => ({
+    ...row,
+    shareOfTrades: totalTrades > 0 ? (row.trades / totalTrades) * 100 : 0,
+  }));
+}
+
+/**
+ * Groups trades by how many confluences were stacked on them. This answers the
+ * question the confluence list exists to answer: does waiting for more reasons
+ * actually improve the outcome?
+ */
+export function breakdownByConfluenceCount(trades: TradeRecord[]) {
+  const label = (count: number) => {
+    if (count === 0) return "None logged";
+    if (count >= 5) return "5+ confluences";
+    return `${count} confluence${count === 1 ? "" : "s"}`;
+  };
+  const order = (count: number) => Math.min(count, 5);
+
+  return breakdownBy(trades, (t) => ({
+    key: String(order(t.confluences.length)),
+    label: label(t.confluences.length),
+  })).sort((a, b) => Number(a.key) - Number(b.key));
+}
+
 export function breakdownByMistake(trades: TradeRecord[], totalTrades: number) {
   const map = new Map<string, { label: string; trades: TradeRecord[] }>();
   for (const trade of trades) {

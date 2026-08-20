@@ -17,7 +17,8 @@ type MultiKey =
   | "strategies"
   | "sessions"
   | "tags"
-  | "mistakes";
+  | "mistakes"
+  | "confluences";
 
 type Option = { value: string; label: string };
 
@@ -48,7 +49,11 @@ export function FilterBar({
           : taxonomy.instruments.map((i) => i.symbol)
         ).map((s) => ({ value: s, label: s })),
       },
-      { key: "markets", label: "Market", options: MARKETS.map((m) => ({ value: m, label: title(m) })) },
+      {
+        key: "markets",
+        label: "Market",
+        options: MARKETS.map((m) => ({ value: m, label: title(m) })),
+      },
       {
         key: "directions",
         label: "Direction",
@@ -66,22 +71,41 @@ export function FilterBar({
           { value: "BREAKEVEN", label: "Breakeven" },
         ],
       },
-      { key: "setups", label: "Setup", options: taxonomy.setups.map((s) => ({ value: s.id, label: s.name })) },
+      {
+        key: "setups",
+        label: "Setup",
+        options: taxonomy.setups.map((s) => ({ value: s.id, label: s.name })),
+      },
       {
         key: "strategies",
         label: "Strategy",
-        options: taxonomy.strategies.map((s) => ({ value: s.id, label: s.name })),
+        options: taxonomy.strategies.map((s) => ({
+          value: s.id,
+          label: s.name,
+        })),
       },
       {
         key: "sessions",
         label: "Session",
         options: taxonomy.sessions.map((s) => ({ value: s.id, label: s.name })),
       },
-      { key: "tags", label: "Tag", options: taxonomy.tags.map((t) => ({ value: t.id, label: t.name })) },
+      {
+        key: "tags",
+        label: "Tag",
+        options: taxonomy.tags.map((t) => ({ value: t.id, label: t.name })),
+      },
       {
         key: "mistakes",
         label: "Mistake",
         options: taxonomy.mistakes.map((m) => ({ value: m.id, label: m.name })),
+      },
+      {
+        key: "confluences",
+        label: "Confluence",
+        options: taxonomy.confluences.map((c) => ({
+          value: c.id,
+          label: c.name,
+        })),
       },
     ],
     [taxonomy],
@@ -91,17 +115,22 @@ export function FilterBar({
     const next = new URLSearchParams(params.toString());
     mutate(next);
     next.delete("page"); // any filter change resets pagination
-    startTransition(() => router.push(`${pathname}?${next.toString()}`, { scroll: false }));
+    startTransition(() =>
+      router.push(`${pathname}?${next.toString()}`, { scroll: false }),
+    );
   };
 
-  const selected = (key: MultiKey) => (params.get(key) ?? "").split(",").filter(Boolean);
+  const selected = (key: MultiKey) =>
+    (params.get(key) ?? "").split(",").filter(Boolean);
 
   const toggle = (key: MultiKey, value: string) => {
     const current = selected(key);
     const next = current.includes(value)
       ? current.filter((v) => v !== value)
       : [...current, value];
-    update((sp) => (next.length ? sp.set(key, next.join(",")) : sp.delete(key)));
+    update((sp) =>
+      next.length ? sp.set(key, next.join(",")) : sp.delete(key),
+    );
   };
 
   const setScalar = (key: string, value: string) => {
@@ -139,7 +168,11 @@ export function FilterBar({
     ] as const) {
       const value = params.get(key);
       if (value) {
-        chips.push({ key, label: `${label} ${value}`, onRemove: () => setScalar(key, "") });
+        chips.push({
+          key,
+          label: `${label} ${value}`,
+          onRemove: () => setScalar(key, ""),
+        });
       }
     }
 
@@ -212,7 +245,10 @@ export function FilterBar({
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className={cn("btn btn-ghost py-1.5 text-xs", open && "border-accent/40 text-ink")}
+            className={cn(
+              "btn btn-ghost py-1.5 text-xs",
+              open && "border-accent/40 text-ink",
+            )}
           >
             <Filter size={13} />
             Filters
@@ -221,18 +257,27 @@ export function FilterBar({
                 {activeChips.length}
               </span>
             ) : null}
-            <ChevronDown size={13} className={cn("transition-transform", open && "rotate-180")} />
+            <ChevronDown
+              size={13}
+              className={cn("transition-transform", open && "rotate-180")}
+            />
           </button>
         ) : null}
 
         {activeChips.length || range !== "month" ? (
-          <button type="button" onClick={resetAll} className="btn btn-ghost py-1.5 text-xs">
+          <button
+            type="button"
+            onClick={resetAll}
+            className="btn btn-ghost py-1.5 text-xs"
+          >
             <RotateCcw size={13} />
             Reset
           </button>
         ) : null}
 
-        {pending ? <Loader2 size={14} className="animate-spin text-ink-faint" /> : null}
+        {pending ? (
+          <Loader2 size={14} className="animate-spin text-ink-faint" />
+        ) : null}
       </div>
 
       {activeChips.length ? (
@@ -242,7 +287,7 @@ export function FilterBar({
               key={chip.key}
               type="button"
               onClick={chip.onRemove}
-              className="chip transition-colors hover:border-rose-500/40 hover:text-rose-300"
+              className="chip transition-colors hover:border-down/40 hover:text-down"
             >
               {chip.label}
               <X size={11} />
@@ -251,22 +296,60 @@ export function FilterBar({
         </div>
       ) : null}
 
-      {open && showAdvanced ? (
-        <div className="card animate-fade-up space-y-4 p-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {groups
-              .filter((group) => group.options.length > 0)
-              .map((group) => (
-                <div key={group.key}>
-                  <p className="label">{group.label}</p>
-                  <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto pr-1">
-                    {group.options.map((option) => {
-                      const active = selected(group.key).includes(option.value);
+      {showAdvanced ? (
+        <div className="collapsible" data-open={open}>
+          <div>
+            <div className="card space-y-4 p-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {groups
+                  .filter((group) => group.options.length > 0)
+                  .map((group) => (
+                    <div key={group.key}>
+                      <p className="label">{group.label}</p>
+                      <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto pr-1">
+                        {group.options.map((option) => {
+                          const active = selected(group.key).includes(
+                            option.value,
+                          );
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => toggle(group.key, option.value)}
+                              className={cn(
+                                "rounded-md border px-2 py-1 text-[11px] font-medium transition-colors",
+                                active
+                                  ? "border-accent/40 bg-accent/12 text-accent"
+                                  : "border-line bg-canvas text-ink-muted hover:text-ink",
+                              )}
+                            >
+                              {option.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+
+                <div>
+                  <p className="label">Followed plan</p>
+                  <div className="flex gap-1.5">
+                    {[
+                      { value: "yes", label: "Followed" },
+                      { value: "no", label: "Broken" },
+                    ].map((option) => {
+                      const active =
+                        params.get("followedPlan") === option.value;
                       return (
                         <button
                           key={option.value}
                           type="button"
-                          onClick={() => toggle(group.key, option.value)}
+                          onClick={() =>
+                            setScalar(
+                              "followedPlan",
+                              active ? "" : option.value,
+                            )
+                          }
                           className={cn(
                             "rounded-md border px-2 py-1 text-[11px] font-medium transition-colors",
                             active
@@ -280,74 +363,48 @@ export function FilterBar({
                     })}
                   </div>
                 </div>
-              ))}
 
-            <div>
-              <p className="label">Followed plan</p>
-              <div className="flex gap-1.5">
-                {[
-                  { value: "yes", label: "Followed" },
-                  { value: "no", label: "Broken" },
-                ].map((option) => {
-                  const active = params.get("followedPlan") === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setScalar("followedPlan", active ? "" : option.value)}
-                      className={cn(
-                        "rounded-md border px-2 py-1 text-[11px] font-medium transition-colors",
-                        active
-                          ? "border-accent/40 bg-accent/12 text-accent"
-                          : "border-line bg-canvas text-ink-muted hover:text-ink",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                <div>
+                  <p className="label">R multiple range</p>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      step="0.1"
+                      placeholder="Min"
+                      defaultValue={params.get("rMin") ?? ""}
+                      onBlur={(e) => setScalar("rMin", e.target.value)}
+                      className="field py-1.5 text-xs"
+                    />
+                    <input
+                      type="number"
+                      step="0.1"
+                      placeholder="Max"
+                      defaultValue={params.get("rMax") ?? ""}
+                      onBlur={(e) => setScalar("rMax", e.target.value)}
+                      className="field py-1.5 text-xs"
+                    />
+                  </div>
+                </div>
 
-            <div>
-              <p className="label">R multiple range</p>
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="number"
-                  step="0.1"
-                  placeholder="Min"
-                  defaultValue={params.get("rMin") ?? ""}
-                  onBlur={(e) => setScalar("rMin", e.target.value)}
-                  className="field py-1.5 text-xs"
-                />
-                <input
-                  type="number"
-                  step="0.1"
-                  placeholder="Max"
-                  defaultValue={params.get("rMax") ?? ""}
-                  onBlur={(e) => setScalar("rMax", e.target.value)}
-                  className="field py-1.5 text-xs"
-                />
-              </div>
-            </div>
-
-            <div>
-              <p className="label">P&amp;L range</p>
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  defaultValue={params.get("pnlMin") ?? ""}
-                  onBlur={(e) => setScalar("pnlMin", e.target.value)}
-                  className="field py-1.5 text-xs"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  defaultValue={params.get("pnlMax") ?? ""}
-                  onBlur={(e) => setScalar("pnlMax", e.target.value)}
-                  className="field py-1.5 text-xs"
-                />
+                <div>
+                  <p className="label">P&amp;L range</p>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      defaultValue={params.get("pnlMin") ?? ""}
+                      onBlur={(e) => setScalar("pnlMin", e.target.value)}
+                      className="field py-1.5 text-xs"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      defaultValue={params.get("pnlMax") ?? ""}
+                      onBlur={(e) => setScalar("pnlMax", e.target.value)}
+                      className="field py-1.5 text-xs"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -74,7 +74,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </div>
 
         {state?.error ? (
-          <p className="rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+          <p className="rounded-lg border border-down/25 bg-down-soft px-3 py-2 text-xs text-down">
             {state.error}
           </p>
         ) : null}

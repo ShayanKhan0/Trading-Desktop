@@ -42,9 +42,9 @@ export function RecentTrades({
               <p
                 className={`num text-sm font-semibold ${
                   trade.netPnl > 0
-                    ? "text-emerald-400"
+                    ? "text-up"
                     : trade.netPnl < 0
-                      ? "text-rose-400"
+                      ? "text-down"
                       : "text-ink-muted"
                 }`}
               >

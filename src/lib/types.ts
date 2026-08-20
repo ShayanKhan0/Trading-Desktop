@@ -44,6 +44,7 @@ export type TradeRecord = {
   isDemo: boolean;
   tags: { id: string; name: string; color: string }[];
   mistakes: { id: string; name: string }[];
+  confluences: { id: string; name: string }[];
   imageCount: number;
 };
 
@@ -60,6 +61,7 @@ export type TradeFilters = {
   sessionIds?: string[];
   tagIds?: string[];
   mistakeIds?: string[];
+  confluenceIds?: string[];
   followedPlan?: "yes" | "no";
   rMin?: number;
   rMax?: number;

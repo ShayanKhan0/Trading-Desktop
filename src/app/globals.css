@@ -1,21 +1,42 @@
 @import "tailwindcss";
 
+/*
+ * TradeLedger — warm light theme.
+ *
+ * The ground is pure white so dense tables and charts read like a printed
+ * ledger. Identity comes from a light-brown accent and warm neutrals; green
+ * and red are reserved exclusively for profit and loss, never for decoration.
+ * Chart hues are validated for colour-vision deficiency against a white
+ * surface (see CATEGORICAL in components/charts/chart-kit.tsx).
+ */
 @theme {
-  --color-canvas: #0a0d12;
-  --color-surface: #10141b;
-  --color-surface-2: #161b24;
-  --color-line: #222834;
-  --color-line-soft: #1a1f29;
-  --color-ink: #e8ecf2;
-  --color-ink-muted: #94a0b3;
-  --color-ink-faint: #64708a;
-  --color-accent: #4f8cff;
-  --color-accent-soft: #1c2a44;
-  --color-up: #34d399;
-  --color-down: #fb7185;
+  --color-canvas: #ffffff;
+  --color-surface: #fbf8f4;
+  --color-surface-2: #f4eee6;
+  --color-line: #e8dfd2;
+  --color-line-soft: #f1eae0;
+  --color-line-strong: #d8cbb8;
+
+  --color-ink: #2b2018;
+  --color-ink-muted: #6b5b4c;
+  --color-ink-faint: #8b7a67;
+
+  --color-accent: #9a6537;
+  --color-accent-ink: #7e5230;
+  --color-accent-soft: #f5ebe0;
+
+  --color-up: #157f52;
+  --color-up-soft: #e6f2ec;
+  --color-down: #c0334a;
+  --color-down-soft: #fbeaec;
+  --color-warn: #9c6b16;
+  --color-warn-soft: #fbf1de;
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --shadow-card: 0 1px 2px rgba(43, 32, 24, 0.04), 0 1px 3px rgba(43, 32, 24, 0.03);
+  --shadow-lift: 0 4px 12px rgba(43, 32, 24, 0.07), 0 1px 3px rgba(43, 32, 24, 0.04);
 }
 
 @layer base {
@@ -24,7 +45,7 @@
   }
 
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
@@ -36,9 +57,9 @@
 
   ::selection {
     background: var(--color-accent-soft);
+    color: var(--color-accent-ink);
   }
 
-  /* Slim scrollbars keep dense data tables from feeling heavy. */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -47,52 +68,63 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #29313f;
+    background: #ded3c3;
     border-radius: 999px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a465a;
+    background: #c9b9a3;
     background-clip: content-box;
   }
 
   input,
   select,
   textarea {
-    color-scheme: dark;
+    color-scheme: light;
   }
 }
 
 @layer components {
   .card {
-    background-color: var(--color-surface);
+    background-color: var(--color-canvas);
     border: 1px solid var(--color-line);
     border-radius: 0.875rem;
+    box-shadow: var(--shadow-card);
   }
 
+  /* Cards that respond to the pointer lift slightly, the way a paper card would. */
   .card-hover {
-    transition: border-color 150ms ease, background-color 150ms ease;
+    transition:
+      border-color 160ms ease,
+      box-shadow 220ms ease,
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .card-hover:hover {
-    border-color: #2e3646;
-    background-color: var(--color-surface-2);
+    border-color: var(--color-line-strong);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
   }
 
   .field {
     width: 100%;
     background-color: var(--color-canvas);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--color-line-strong);
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     color: var(--color-ink);
     outline: none;
-    transition: border-color 140ms ease, box-shadow 140ms ease;
+    transition:
+      border-color 140ms ease,
+      box-shadow 140ms ease;
+  }
+  .field:hover:not(:focus) {
+    border-color: #c4b39c;
   }
   .field:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(154, 101, 55, 0.14);
   }
   .field::placeholder {
     color: var(--color-ink-faint);
@@ -115,9 +147,18 @@
     padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     font-weight: 500;
-    transition: all 140ms ease;
     cursor: pointer;
     white-space: nowrap;
+    transition:
+      background-color 140ms ease,
+      border-color 140ms ease,
+      color 140ms ease,
+      box-shadow 140ms ease,
+      transform 90ms ease;
+  }
+  /* A press should feel like a press — it confirms the click landed. */
+  .btn:active:not(:disabled) {
+    transform: scale(0.975);
   }
   .btn:disabled {
     opacity: 0.5;
@@ -126,31 +167,33 @@
 
   .btn-primary {
     background-color: var(--color-accent);
-    color: #06121f;
+    color: #ffffff;
     font-weight: 600;
+    box-shadow: var(--shadow-card);
   }
   .btn-primary:hover:not(:disabled) {
-    background-color: #6ba0ff;
+    background-color: var(--color-accent-ink);
+    box-shadow: var(--shadow-lift);
   }
 
   .btn-ghost {
-    background-color: transparent;
+    background-color: var(--color-canvas);
     color: var(--color-ink-muted);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--color-line-strong);
   }
   .btn-ghost:hover:not(:disabled) {
     color: var(--color-ink);
-    border-color: #2e3646;
-    background-color: var(--color-surface-2);
+    border-color: #c4b39c;
+    background-color: var(--color-surface);
   }
 
   .btn-danger {
-    background-color: rgba(251, 113, 133, 0.1);
+    background-color: var(--color-down-soft);
     color: var(--color-down);
-    border: 1px solid rgba(251, 113, 133, 0.25);
+    border: 1px solid rgba(192, 51, 74, 0.28);
   }
   .btn-danger:hover:not(:disabled) {
-    background-color: rgba(251, 113, 133, 0.18);
+    background-color: #f6dade;
   }
 
   .chip {
@@ -159,7 +202,7 @@
     gap: 0.25rem;
     border-radius: 999px;
     border: 1px solid var(--color-line);
-    background-color: var(--color-surface-2);
+    background-color: var(--color-surface);
     padding: 0.125rem 0.5rem;
     font-size: 0.6875rem;
     font-weight: 500;
@@ -180,6 +223,14 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+ * Motion
+ *
+ * Every animation here answers a question the user is already asking:
+ * "did that land?", "what changed?", "where am I?". Nothing loops, nothing
+ * animates on a timer, and nothing moves more than a few pixels.
+ * ------------------------------------------------------------------------- */
+
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -192,7 +243,91 @@
 }
 
 .animate-fade-up {
-  animation: fade-up 220ms ease-out both;
+  animation: fade-up 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/*
+ * Staggered entrance. Applied to a grid of KPI cards, the sequence reads as
+ * "these numbers were just computed for the range you picked" — the delay
+ * ceiling keeps the whole run under a quarter second.
+ */
+.stagger > * {
+  animation: fade-up 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 25ms; }
+.stagger > *:nth-child(3) { animation-delay: 50ms; }
+.stagger > *:nth-child(4) { animation-delay: 75ms; }
+.stagger > *:nth-child(5) { animation-delay: 100ms; }
+.stagger > *:nth-child(6) { animation-delay: 125ms; }
+.stagger > *:nth-child(7) { animation-delay: 150ms; }
+.stagger > *:nth-child(n + 8) { animation-delay: 170ms; }
+
+/*
+ * Collapsible regions (the filter panel). Animating grid-template-rows lets the
+ * panel open to its natural height without measuring anything in JavaScript.
+ */
+.collapsible {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.collapsible > * {
+  overflow: hidden;
+}
+.collapsible[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+/*
+ * The active navigation marker slides between items rather than cutting, so
+ * the eye can follow where it went.
+ */
+.nav-item {
+  position: relative;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+.nav-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background-color: var(--color-accent);
+  transform: translateY(-50%);
+  transition:
+    height 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 160ms ease;
+  opacity: 0;
+}
+.nav-item[data-active="true"]::before {
+  height: 60%;
+  opacity: 1;
+}
+
+/* Calendar days lift on hover to signal they open the day's trades. */
+.day-cell {
+  transition:
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+.day-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--color-line-strong);
+}
+
+/* Rows highlight under the pointer so a wide table stays trackable. */
+.row-hover {
+  transition: background-color 120ms ease;
+}
+.row-hover:hover {
+  background-color: var(--color-surface);
 }
 
 @keyframes shimmer {
@@ -211,6 +346,39 @@
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
   animation: shimmer 1.4s infinite;
+}
+
+/* Confirmation of a saved change, then out of the way. */
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  60% {
+    transform: scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animate-pop-in {
+  animation: pop-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-hover:hover,
+  .day-cell:hover {
+    transform: none;
+  }
 }

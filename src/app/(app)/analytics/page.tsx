@@ -7,6 +7,8 @@ import {
   breakdownByHour,
   breakdownByInstrument,
   breakdownByMarketCondition,
+  breakdownByConfluence,
+  breakdownByConfluenceCount,
   breakdownByMistake,
   breakdownByPlanAdherence,
   breakdownByScoreBand,
@@ -82,6 +84,8 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
   const weekdays = breakdownByDayOfWeek(trades);
   const tags = breakdownByTag(trades);
   const mistakes = breakdownByMistake(trades, trades.length);
+  const confluences = breakdownByConfluence(trades, trades.length);
+  const confluenceCounts = breakdownByConfluenceCount(trades);
   const conditions = breakdownByMarketCondition(trades);
   const emotions = breakdownByEmotion(trades);
 
@@ -91,6 +95,16 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
   const durations = durationBuckets(trades);
 
   const mistakeCost = mistakes.reduce((total, row) => total + Math.min(0, row.netPnl), 0);
+
+  // Does stacking more reasons actually help? Compare a thin book against a thick one.
+  const thin = trades.filter((t) => t.confluences.length > 0 && t.confluences.length <= 2);
+  const thick = trades.filter((t) => t.confluences.length >= 4);
+  const rateOf = (rows: typeof trades) => {
+    const decided = rows.filter((t) => t.result !== "BREAKEVEN");
+    return decided.length ? (rows.filter((t) => t.result === "WIN").length / decided.length) * 100 : 0;
+  };
+  const confluenceLift =
+    thin.length >= 5 && thick.length >= 5 ? rateOf(thick) - rateOf(thin) : null;
 
   return (
     <>
@@ -297,13 +311,63 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
           currency={currency}
         />
 
+        {/* Confluences */}
+        <section>
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold tracking-tight">Confluence analysis</h2>
+            {confluenceLift !== null ? (
+              <p className="text-xs text-ink-faint">
+                Four or more confluences win{" "}
+                <span
+                  className={`num font-semibold ${confluenceLift >= 0 ? "text-up" : "text-down"}`}
+                >
+                  {confluenceLift >= 0 ? "+" : ""}
+                  {confluenceLift.toFixed(1)}pp
+                </span>{" "}
+                more often than one or two
+              </p>
+            ) : null}
+          </div>
+
+          {confluences.length ? (
+            <div className="grid gap-4 xl:grid-cols-[1fr_1.3fr]">
+              <Card className="overflow-hidden">
+                <CardHeader
+                  title="Win rate by confluence count"
+                  subtitle="Does waiting for more reasons pay?"
+                />
+                <BreakdownBarChart
+                  rows={confluenceCounts}
+                  metric="winRate"
+                  currency={currency}
+                  height={280}
+                />
+              </Card>
+              <Card className="overflow-hidden">
+                <CardHeader
+                  title="Performance by confluence"
+                  subtitle="Every trade where each reason was present"
+                />
+                <BreakdownTable rows={confluences} currency={currency} showShare />
+              </Card>
+            </div>
+          ) : (
+            <Card>
+              <EmptyState
+                title="No confluences logged in this period"
+                description="Tick the reasons that justified each entry on the trade form, then come back to see which ones actually carry the edge."
+              />
+            </Card>
+          )}
+        </section>
+
         {/* Mistakes */}
         <section>
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-sm font-semibold tracking-tight">Mistake analysis</h2>
             <p className="text-xs text-ink-faint">
               Trades carrying a mistake lost{" "}
-              <span className="num font-semibold text-rose-400">
+              <span className="num font-semibold text-down">
                 {formatCurrency(mistakeCost, currency)}
               </span>{" "}
               in aggregate

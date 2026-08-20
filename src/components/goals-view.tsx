@@ -129,7 +129,7 @@ export function GoalsView({
             </div>
 
             {state?.error ? (
-              <p className="mx-5 mb-4 rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+              <p className="mx-5 mb-4 rounded-lg border border-down/25 bg-down-soft px-3 py-2 text-xs text-down">
                 {state.error}
               </p>
             ) : null}
@@ -165,9 +165,9 @@ export function GoalsView({
                 </div>
                 {item.goal.active ? (
                   item.met ? (
-                    <CheckCircle2 size={17} className="shrink-0 text-emerald-400" />
+                    <CheckCircle2 size={17} className="shrink-0 text-up" />
                   ) : (
-                    <XCircle size={17} className="shrink-0 text-rose-400" />
+                    <XCircle size={17} className="shrink-0 text-down" />
                   )
                 ) : null}
               </div>
@@ -176,7 +176,7 @@ export function GoalsView({
                 <span
                   className={cn(
                     "num text-xl font-semibold",
-                    item.met ? "text-emerald-400" : "text-rose-400",
+                    item.met ? "text-up" : "text-down",
                   )}
                 >
                   {formatValue(item.actual, item.unit)}
@@ -190,7 +190,7 @@ export function GoalsView({
                 <div
                   className={cn(
                     "h-full rounded-full transition-all",
-                    item.met ? "bg-emerald-400" : "bg-rose-400",
+                    item.met ? "bg-up" : "bg-down",
                   )}
                   style={{ width: `${Math.max(2, item.progressPercent)}%` }}
                 />
@@ -219,7 +219,7 @@ export function GoalsView({
                     type="button"
                     title="Delete goal"
                     onClick={() => startTransition(() => void deleteGoal(item.goal.id))}
-                    className="rounded p-1 text-ink-faint transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                    className="rounded p-1 text-ink-faint transition-colors hover:bg-down-soft hover:text-down"
                   >
                     <Trash2 size={13} />
                   </button>

@@ -39,6 +39,9 @@ export function TradeForm({ taxonomy, trade, currency = "USD" }: Props) {
 
   const [tagIds, setTagIds] = useState<string[]>(trade?.tags.map((t) => t.id) ?? []);
   const [mistakeIds, setMistakeIds] = useState<string[]>(trade?.mistakes.map((m) => m.id) ?? []);
+  const [confluenceIds, setConfluenceIds] = useState<string[]>(
+    trade?.confluences.map((c) => c.id) ?? [],
+  );
   const [images, setImages] = useState<PendingImage[]>([]);
 
   const instrument = useMemo(
@@ -81,6 +84,9 @@ export function TradeForm({ taxonomy, trade, currency = "USD" }: Props) {
       ))}
       {mistakeIds.map((id) => (
         <input key={id} type="hidden" name="mistakeIds" value={id} />
+      ))}
+      {confluenceIds.map((id) => (
+        <input key={id} type="hidden" name="confluenceIds" value={id} />
       ))}
       {manualOverride && manualNetPnl !== "" ? (
         <input type="hidden" name="manualNetPnl" value={manualNetPnl} />
@@ -171,8 +177,8 @@ export function TradeForm({ taxonomy, trade, currency = "USD" }: Props) {
                         "rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
                         direction === value
                           ? value === "LONG"
-                            ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
-                            : "border-rose-500/40 bg-rose-500/10 text-rose-400"
+                            ? "border-up/40 bg-up-soft text-up"
+                            : "border-down/40 bg-down-soft text-down"
                           : "border-line bg-canvas text-ink-muted hover:text-ink",
                       )}
                     >
@@ -313,6 +319,26 @@ export function TradeForm({ taxonomy, trade, currency = "USD" }: Props) {
                   ))}
                 </select>
               </Field>
+
+              <div className="sm:col-span-2">
+                <p className="label">
+                  Confluences
+                  <span className="ml-2 font-normal text-ink-faint">
+                    Why this setup was worth taking &mdash; stack every reason that applied
+                  </span>
+                </p>
+                <ChipPicker
+                  options={taxonomy.confluences.map((c) => ({ id: c.id, label: c.name }))}
+                  selected={confluenceIds}
+                  onToggle={(id) =>
+                    setConfluenceIds((current) =>
+                      current.includes(id) ? current.filter((v) => v !== id) : [...current, id],
+                    )
+                  }
+                  tone="up"
+                  emptyHint="Create confluences in Settings"
+                />
+              </div>
 
               <div className="sm:col-span-2">
                 <p className="label">Tags</p>
@@ -500,7 +526,7 @@ export function TradeForm({ taxonomy, trade, currency = "USD" }: Props) {
             </div>
 
             {state?.error ? (
-              <p className="mx-5 mb-4 rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+              <p className="mx-5 mb-4 rounded-lg border border-down/25 bg-down-soft px-3 py-2 text-xs text-down">
                 {state.error}
               </p>
             ) : null}
@@ -534,7 +560,7 @@ function Field({
     <div>
       <p className="label">
         {label}
-        {required ? <span className="ml-0.5 text-rose-400">*</span> : null}
+        {required ? <span className="ml-0.5 text-down">*</span> : null}
       </p>
       {children}
     </div>
@@ -618,7 +644,7 @@ function ChipPicker({
   options: { id: string; label: string }[];
   selected: string[];
   onToggle: (id: string) => void;
-  tone?: "accent" | "down";
+  tone?: "accent" | "down" | "up";
   emptyHint?: string;
 }) {
   if (!options.length) {
@@ -638,9 +664,11 @@ function ChipPicker({
               "rounded-md border px-2 py-1 text-xs font-medium transition-colors",
               active
                 ? tone === "down"
-                  ? "border-rose-500/40 bg-rose-500/10 text-rose-400"
-                  : "border-accent/40 bg-accent/12 text-accent"
-                : "border-line bg-canvas text-ink-muted hover:text-ink",
+                  ? "border-down/40 bg-down/10 text-down"
+                  : tone === "up"
+                    ? "border-up/40 bg-up/10 text-up"
+                    : "border-accent/45 bg-accent/12 text-accent-ink"
+                : "border-line bg-canvas text-ink-muted hover:border-line-strong hover:text-ink",
             )}
           >
             {option.label}
@@ -666,9 +694,9 @@ function Row({
     tone === undefined
       ? "text-ink"
       : tone > 0
-        ? "text-emerald-400"
+        ? "text-up"
         : tone < 0
-          ? "text-rose-400"
+          ? "text-down"
           : "text-ink-muted";
 
   return (

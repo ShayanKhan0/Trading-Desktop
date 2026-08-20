@@ -14,7 +14,7 @@ export function StatCard({
   size?: "sm" | "md" | "lg";
 }) {
   const toneClass =
-    tone === "up" ? "text-emerald-400" : tone === "down" ? "text-rose-400" : "text-ink";
+    tone === "up" ? "text-up" : tone === "down" ? "text-down" : "text-ink";
 
   return (
     <div className="card card-hover px-4 py-3">

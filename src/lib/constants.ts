@@ -53,6 +53,23 @@ export const DEFAULT_SETUPS = [
   "New York Open",
 ];
 
+// Confluence factors: the reasons a setup was worth taking. Traders stack several
+// per trade, so these are many-to-many and analysed by combination frequency.
+export const DEFAULT_CONFLUENCES = [
+  { name: "HTF Bias Aligned", description: "Trade agrees with the higher timeframe direction" },
+  { name: "Liquidity Swept", description: "Price took out a prior high or low before entry" },
+  { name: "Fair Value Gap", description: "Entry sits inside an unfilled imbalance" },
+  { name: "Order Block", description: "Entry from a refined institutional candle" },
+  { name: "Breaker Block", description: "Failed order block flipped into support or resistance" },
+  { name: "Market Structure Shift", description: "Confirmed break of structure in the trade direction" },
+  { name: "Killzone Timing", description: "Entry landed inside a planned time window" },
+  { name: "Daily Level", description: "Reaction from a daily open, high, low or close" },
+  { name: "Round Number", description: "Price reacting at a psychological level" },
+  { name: "Volume Confirmation", description: "Participation supported the move" },
+  { name: "Trend Continuation", description: "Entry in the direction of the prevailing trend" },
+  { name: "Divergence", description: "Momentum diverged from price before entry" },
+];
+
 export const DEFAULT_TAGS = [
   { name: "A+ Setup", color: "emerald" },
   { name: "High Confidence", color: "sky" },

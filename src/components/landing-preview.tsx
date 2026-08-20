@@ -34,7 +34,7 @@ export function LandingPreview() {
         <div className="flex items-center justify-between px-5 pt-4">
           <div>
             <p className="text-xs text-ink-faint">Cumulative P&amp;L</p>
-            <p className="num mt-0.5 text-2xl font-semibold text-emerald-400">+$18,420.55</p>
+            <p className="num mt-0.5 text-2xl font-semibold text-up">+$18,420.55</p>
           </div>
           <div className="hidden gap-1 sm:flex">
             {["1M", "3M", "YTD", "All"].map((label, index) => (
@@ -89,14 +89,14 @@ export function LandingPreview() {
               key={index}
               className="flex aspect-square items-center justify-center rounded-md border text-[9px] font-medium"
               style={{
-                borderColor: value === 0 ? "#1a1f29" : value > 0 ? "rgba(52,211,153,0.25)" : "rgba(251,113,133,0.25)",
+                borderColor: value === 0 ? "#f1eae0" : value > 0 ? "rgba(21,127,82,0.28)" : "rgba(192,51,74,0.28)",
                 backgroundColor:
                   value === 0
                     ? "transparent"
                     : value > 0
-                      ? `rgba(52,211,153,${Math.min(0.28, Math.abs(value) / 8000 + 0.07)})`
-                      : `rgba(251,113,133,${Math.min(0.28, Math.abs(value) / 8000 + 0.07)})`,
-                color: value === 0 ? "#64708a" : value > 0 ? UP : DOWN,
+                      ? `rgba(21,127,82,${Math.min(0.28, Math.abs(value) / 8000 + 0.07)})`
+                      : `rgba(192,51,74,${Math.min(0.28, Math.abs(value) / 8000 + 0.07)})`,
+                color: value === 0 ? "#8b7a67" : value > 0 ? UP : DOWN,
               }}
             >
               {value === 0 ? "" : value > 0 ? `+${(value / 1000).toFixed(1)}k` : `${(value / 1000).toFixed(1)}k`}

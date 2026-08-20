@@ -227,6 +227,7 @@ export async function createTrade(_prev: TradeFormState, formData: FormData): Pr
   const data = await buildTradeData(user.id, parsed.data);
   const tagIds = readIds(formData, "tagIds");
   const mistakeIds = readIds(formData, "mistakeIds");
+  const confluenceIds = readIds(formData, "confluenceIds");
   const images = readImages(formData);
 
   const trade = await prisma.trade.create({
@@ -235,6 +236,9 @@ export async function createTrade(_prev: TradeFormState, formData: FormData): Pr
       tags: tagIds.length ? { create: tagIds.map((tagId) => ({ tagId })) } : undefined,
       mistakes: mistakeIds.length
         ? { create: mistakeIds.map((mistakeId) => ({ mistakeId })) }
+        : undefined,
+      confluences: confluenceIds.length
+        ? { create: confluenceIds.map((confluenceId) => ({ confluenceId })) }
         : undefined,
       images: images.length ? { create: images } : undefined,
     },
@@ -259,11 +263,13 @@ export async function updateTrade(_prev: TradeFormState, formData: FormData): Pr
   const data = await buildTradeData(user.id, parsed.data);
   const tagIds = readIds(formData, "tagIds");
   const mistakeIds = readIds(formData, "mistakeIds");
+  const confluenceIds = readIds(formData, "confluenceIds");
   const images = readImages(formData);
 
   await prisma.$transaction([
     prisma.tradeTag.deleteMany({ where: { tradeId: id } }),
     prisma.tradeMistake.deleteMany({ where: { tradeId: id } }),
+    prisma.tradeConfluence.deleteMany({ where: { tradeId: id } }),
     prisma.trade.update({
       where: { id },
       data: {
@@ -271,6 +277,9 @@ export async function updateTrade(_prev: TradeFormState, formData: FormData): Pr
         tags: tagIds.length ? { create: tagIds.map((tagId) => ({ tagId })) } : undefined,
         mistakes: mistakeIds.length
           ? { create: mistakeIds.map((mistakeId) => ({ mistakeId })) }
+          : undefined,
+        confluences: confluenceIds.length
+          ? { create: confluenceIds.map((confluenceId) => ({ confluenceId })) }
           : undefined,
       },
     }),

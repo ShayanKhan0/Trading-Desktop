@@ -65,11 +65,12 @@ export function AppShell({
             key={item.href}
             href={item.href}
             onClick={onNavigate}
+            data-active={active}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+              "nav-item flex items-center gap-3 rounded-lg px-3 py-2 text-sm",
               active
-                ? "bg-accent/12 font-medium text-accent"
-                : "text-ink-muted hover:bg-surface-2 hover:text-ink",
+                ? "bg-accent-soft font-medium text-accent-ink"
+                : "text-ink-muted hover:bg-canvas/70 hover:text-ink",
             )}
           >
             <item.icon size={17} strokeWidth={1.9} />
@@ -94,7 +95,7 @@ export function AppShell({
           <button
             type="submit"
             title="Sign out"
-            className="rounded-md p-1.5 text-ink-faint transition-colors hover:bg-surface-2 hover:text-rose-400"
+            className="rounded-md p-1.5 text-ink-faint transition-colors hover:bg-surface-2 hover:text-down"
           >
             <LogOut size={15} />
           </button>
@@ -106,7 +107,7 @@ export function AppShell({
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-surface lg:flex">
+      <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-surface-2 lg:flex">
         <Link href="/dashboard" className="flex h-16 items-center gap-2 px-5">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 text-accent">
             <LineChart size={18} />
@@ -124,7 +125,7 @@ export function AppShell({
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setDrawerOpen(false)}
           />
-          <aside className="animate-fade-up absolute inset-y-0 left-0 flex w-72 flex-col border-r border-line bg-surface">
+          <aside className="animate-fade-up absolute inset-y-0 left-0 flex w-72 flex-col border-r border-line bg-surface-2">
             <div className="flex h-16 items-center justify-between px-5">
               <span className="flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 text-accent">
@@ -165,7 +166,7 @@ export function AppShell({
         <main className="min-w-0 flex-1 pb-20 lg:pb-0">{children}</main>
 
         {/* Mobile bottom navigation */}
-        <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-surface/95 backdrop-blur lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-surface-2/95 backdrop-blur lg:hidden">
           {MOBILE_NAV.map((item) => {
             const active = isActive(pathname, item.href);
             return (

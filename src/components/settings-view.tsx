@@ -70,7 +70,7 @@ export function SettingsView({
               subtitle="Used for currency formatting and account-balance charts"
               action={
                 accountState?.success ? (
-                  <span className="flex items-center gap-1 text-xs text-emerald-400">
+                  <span className="flex items-center gap-1 text-xs text-up">
                     <CheckCircle2 size={13} /> Saved
                   </span>
                 ) : null
@@ -132,7 +132,7 @@ export function SettingsView({
               </div>
 
               {accountState?.error ? (
-                <p className="mx-5 mb-4 rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+                <p className="mx-5 mb-4 rounded-lg border border-down/25 bg-down-soft px-3 py-2 text-xs text-down">
                   {accountState.error}
                 </p>
               ) : null}
@@ -253,6 +253,21 @@ export function SettingsView({
           />
 
           <TaxonomySection
+            entity="confluence"
+            title="Confluences"
+            subtitle="The reasons that justify a setup — stack them on each trade"
+            items={taxonomy.confluences.map((c) => ({
+              id: c.id,
+              label: c.name,
+              detail: c.description ?? "",
+            }))}
+            placeholder="HTF Bias Aligned"
+            extraFields={
+              <input name="description" placeholder="What it means (optional)" className="field" />
+            }
+          />
+
+          <TaxonomySection
             entity="mistake"
             title="Mistake types"
             subtitle="Anything you want to hold yourself accountable for"
@@ -308,7 +323,7 @@ function TaxonomySection({
           <input name="name" required placeholder={placeholder} className="field" />
           {extraFields}
         </div>
-        {state?.error ? <p className="text-xs text-rose-400">{state.error}</p> : null}
+        {state?.error ? <p className="text-xs text-down">{state.error}</p> : null}
         <button type="submit" disabled={pending} className="btn btn-ghost w-full">
           {pending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
           Add
@@ -330,7 +345,7 @@ function TaxonomySection({
                   type="button"
                   title="Delete"
                   onClick={() => startTransition(() => void deleteTaxonomyItem(entity as never, item.id))}
-                  className="shrink-0 rounded p-1 text-ink-faint transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                  className="shrink-0 rounded p-1 text-ink-faint transition-colors hover:bg-down-soft hover:text-down"
                 >
                   <Trash2 size={13} />
                 </button>

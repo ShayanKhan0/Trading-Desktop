@@ -123,7 +123,7 @@ export function CsvImport() {
               }}
             />
           </label>
-          {parseError ? <p className="mt-3 text-xs text-rose-400">{parseError}</p> : null}
+          {parseError ? <p className="mt-3 text-xs text-down">{parseError}</p> : null}
         </div>
       </Card>
 
@@ -138,7 +138,7 @@ export function CsvImport() {
               <div key={field.key}>
                 <label className="label">
                   {field.label}
-                  {field.required ? <span className="ml-0.5 text-rose-400">*</span> : null}
+                  {field.required ? <span className="ml-0.5 text-down">*</span> : null}
                   {field.hint ? <span className="ml-1 text-ink-faint">({field.hint})</span> : null}
                 </label>
                 <select
@@ -153,7 +153,7 @@ export function CsvImport() {
                   }
                   className={cn(
                     "field",
-                    field.required && !mapping[field.key] && "border-rose-500/40",
+                    field.required && !mapping[field.key] && "border-down/40",
                   )}
                 >
                   <option value="">— not mapped —</option>
@@ -178,7 +178,7 @@ export function CsvImport() {
               Validate &amp; preview
             </button>
             {requiredMissing.length ? (
-              <p className="text-xs text-amber-400">
+              <p className="text-xs text-warn">
                 Map {requiredMissing.map((f) => f.label).join(", ")} to continue
               </p>
             ) : null}
@@ -194,11 +194,11 @@ export function CsvImport() {
           />
 
           {preview.errors.length ? (
-            <div className="mx-5 mb-4 rounded-lg border border-rose-500/25 bg-rose-500/10 p-3">
-              <p className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-rose-300">
+            <div className="mx-5 mb-4 rounded-lg border border-down/25 bg-down-soft p-3">
+              <p className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-down">
                 <AlertTriangle size={13} /> Rows that will be skipped
               </p>
-              <ul className="max-h-32 space-y-0.5 overflow-y-auto text-[11px] text-rose-300/85">
+              <ul className="max-h-32 space-y-0.5 overflow-y-auto text-[11px] text-down/90">
                 {preview.errors.slice(0, 30).map((error) => (
                   <li key={error.row}>
                     Row {error.row}: {error.message}
@@ -234,9 +234,9 @@ export function CsvImport() {
                     </td>
                     <td className="px-3 py-1.5 text-xs">
                       {row.duplicate ? (
-                        <span className="text-amber-400">Possible duplicate</span>
+                        <span className="text-warn">Possible duplicate</span>
                       ) : (
-                        <span className="text-emerald-400">New</span>
+                        <span className="text-up">New</span>
                       )}
                     </td>
                   </tr>
@@ -266,7 +266,7 @@ export function CsvImport() {
       {result ? (
         <Card>
           <div className="flex items-start gap-3 p-5">
-            <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-emerald-400" />
+            <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-up" />
             <div>
               <p className="text-sm font-medium">Import complete</p>
               <p className="mt-1 text-xs text-ink-muted">
@@ -274,7 +274,7 @@ export function CsvImport() {
                 {result.skipped} rows skipped
               </p>
               {result.errors.length ? (
-                <ul className="mt-2 max-h-32 space-y-0.5 overflow-y-auto text-[11px] text-rose-300/85">
+                <ul className="mt-2 max-h-32 space-y-0.5 overflow-y-auto text-[11px] text-down/90">
                   {result.errors.slice(0, 20).map((error) => (
                     <li key={error.row}>
                       Row {error.row}: {error.message}

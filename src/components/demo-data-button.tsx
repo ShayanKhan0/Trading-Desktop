@@ -45,7 +45,7 @@ export function DemoDataButton({ hasDemo = false }: { hasDemo?: boolean }) {
         </button>
       ) : null}
 
-      {message ? <span className="text-xs text-emerald-400">{message}</span> : null}
+      {message ? <span className="text-xs text-up">{message}</span> : null}
     </span>
   );
 }

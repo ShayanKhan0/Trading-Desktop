@@ -30,7 +30,7 @@ export function DistributionChart({
           <XAxis dataKey="label" {...AXIS} interval={0} minTickGap={2} />
           <YAxis {...AXIS} allowDecimals={false} width={34} />
           <Tooltip
-            cursor={{ fill: "rgba(255,255,255,0.03)" }}
+            cursor={{ fill: "rgba(154,101,55,0.06)" }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const row = payload[0].payload as { from: number; to: number; count: number };

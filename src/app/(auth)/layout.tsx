@@ -8,7 +8,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           className="absolute inset-0 opacity-[0.35]"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(79,140,255,0.18), transparent 45%), radial-gradient(circle at 80% 70%, rgba(52,211,153,0.12), transparent 45%)",
+              "radial-gradient(circle at 20% 20%, rgba(154,101,55,0.16), transparent 45%), radial-gradient(circle at 80% 70%, rgba(21,127,82,0.09), transparent 45%)",
           }}
         />
         <div className="relative flex h-full flex-col justify-center gap-8 px-14">

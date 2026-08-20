@@ -168,7 +168,7 @@ export function TradesTable({
               {trades.map((trade) => (
                 <tr
                   key={trade.id}
-                  className="border-b border-line-soft transition-colors last:border-0 hover:bg-surface-2"
+                  className="row-hover border-b border-line-soft last:border-0"
                 >
                   <td className="whitespace-nowrap px-3 py-2.5 pl-5">
                     <Link href={`/trades/${trade.id}`} className="block">
@@ -208,9 +208,9 @@ export function TradesTable({
                     className={cn(
                       "num whitespace-nowrap px-3 py-2.5 text-right font-semibold",
                       trade.netPnl > 0
-                        ? "text-emerald-400"
+                        ? "text-up"
                         : trade.netPnl < 0
-                          ? "text-rose-400"
+                          ? "text-down"
                           : "text-ink-muted",
                     )}
                   >
@@ -226,9 +226,9 @@ export function TradesTable({
                     className={cn(
                       "num whitespace-nowrap px-3 py-2.5 text-right text-xs font-medium",
                       (trade.rMultiple ?? 0) > 0
-                        ? "text-emerald-400"
+                        ? "text-up"
                         : (trade.rMultiple ?? 0) < 0
-                          ? "text-rose-400"
+                          ? "text-down"
                           : "text-ink-muted",
                     )}
                   >

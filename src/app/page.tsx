@@ -105,13 +105,13 @@ export default function LandingPage() {
             className="pointer-events-none absolute inset-0 opacity-60"
             style={{
               backgroundImage:
-                "radial-gradient(ellipse 60% 50% at 50% -10%, rgba(79,140,255,0.16), transparent 70%)",
+                "radial-gradient(ellipse 60% 50% at 50% -10%, rgba(154,101,55,0.10), transparent 70%)",
             }}
           />
           <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
             <div className="mx-auto max-w-3xl text-center">
               <span className="chip mx-auto">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <span className="h-1.5 w-1.5 rounded-full bg-up" />
                 Built for traders who review their work
               </span>
 
@@ -146,7 +146,7 @@ export default function LandingPage() {
               {METRICS.map((metric) => (
                 <div key={metric.label} className="card px-4 py-3 text-center">
                   <p className="text-xs text-ink-faint">{metric.label}</p>
-                  <p className="num mt-1 text-lg font-semibold text-emerald-400">{metric.value}</p>
+                  <p className="num mt-1 text-lg font-semibold text-up">{metric.value}</p>
                 </div>
               ))}
             </div>

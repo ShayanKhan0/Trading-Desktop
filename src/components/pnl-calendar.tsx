@@ -106,13 +106,13 @@ export function PnlCalendar({
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-          <span className={monthPnl >= 0 ? "text-emerald-400" : "text-rose-400"}>
+          <span className={monthPnl >= 0 ? "text-up" : "text-down"}>
             <span className="num font-semibold">{formatCurrency(monthPnl, currency)}</span>
           </span>
           <span className="text-ink-faint">{monthTrades} trades</span>
           <span className="text-ink-faint">
-            <span className="text-emerald-400">{greenDays}</span> /{" "}
-            <span className="text-rose-400">{redDays}</span> days
+            <span className="text-up">{greenDays}</span> /{" "}
+            <span className="text-down">{redDays}</span> days
           </span>
         </div>
       </div>
@@ -137,23 +137,23 @@ export function PnlCalendar({
             const cell = (
               <div
                 className={cn(
-                  "flex flex-col justify-between rounded-md border p-1.5 transition-colors",
+                  "day-cell flex flex-col justify-between rounded-md border p-1.5",
                   compact ? "min-h-[3.25rem]" : "min-h-[4.5rem]",
                   inMonth ? "border-line-soft" : "border-transparent opacity-35",
-                  stat && "hover:border-accent/40",
+                  stat && "cursor-pointer hover:border-accent/50",
                 )}
                 style={
                   stat
                     ? {
                         backgroundColor: positive
-                          ? `rgba(52,211,153,${intensity})`
+                          ? `rgba(21,127,82,${intensity})`
                           : negative
-                            ? `rgba(251,113,133,${intensity})`
+                            ? `rgba(192,51,74,${intensity})`
                             : "transparent",
                         borderColor: positive
-                          ? "rgba(52,211,153,0.25)"
+                          ? "rgba(21,127,82,0.3)"
                           : negative
-                            ? "rgba(251,113,133,0.25)"
+                            ? "rgba(192,51,74,0.3)"
                             : undefined,
                       }
                     : undefined
@@ -165,7 +165,7 @@ export function PnlCalendar({
                     <span
                       className={cn(
                         "num block text-[11px] font-semibold leading-tight",
-                        positive ? "text-emerald-400" : negative ? "text-rose-400" : "text-ink-muted",
+                        positive ? "text-up" : negative ? "text-down" : "text-ink-muted",
                       )}
                     >
                       {formatCurrency(stat.netPnl, currency, true)}
@@ -207,7 +207,7 @@ export function PnlCalendar({
                   <span
                     className={cn(
                       "num text-[11px] font-semibold",
-                      week.pnl > 0 ? "text-emerald-400" : week.pnl < 0 ? "text-rose-400" : "text-ink-faint",
+                      week.pnl > 0 ? "text-up" : week.pnl < 0 ? "text-down" : "text-ink-faint",
                     )}
                   >
                     {week.trades ? formatCurrency(week.pnl, currency, true) : "—"}

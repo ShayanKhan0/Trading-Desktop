@@ -242,7 +242,7 @@ export function ReviewView({
             subtitle="The numbers above are the evidence — this is the interpretation."
             action={
               state?.success ? (
-                <span className="flex items-center gap-1 text-xs text-emerald-400">
+                <span className="flex items-center gap-1 text-xs text-up">
                   <CheckCircle2 size={13} /> {state.success}
                 </span>
               ) : null
@@ -298,7 +298,7 @@ export function ReviewView({
           </div>
 
           {state?.error ? (
-            <p className="mx-5 mb-4 rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+            <p className="mx-5 mb-4 rounded-lg border border-down/25 bg-down-soft px-3 py-2 text-xs text-down">
               {state.error}
             </p>
           ) : null}
@@ -365,7 +365,7 @@ function Delta({
     : `${value > 0 ? "+" : ""}${value.toFixed(suffix === "pp" ? 1 : 0)}${suffix ?? ""}`;
 
   return (
-    <span className={cn("inline-flex items-center gap-0.5", value >= 0 ? "text-emerald-400" : "text-rose-400")}>
+    <span className={cn("inline-flex items-center gap-0.5", value >= 0 ? "text-up" : "text-down")}>
       {value >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
       {formatted} vs previous
     </span>

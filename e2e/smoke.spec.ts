@@ -120,6 +120,48 @@ test("daily journal entry saves", async ({ page }) => {
   );
 });
 
+
+test("confluences can be created, attached to a trade, and analysed", async ({ page }) => {
+  await signIn(page);
+
+  // Create a confluence of my own from Settings.
+  const custom = `Session Open Sweep ${Date.now()}`;
+  await page.goto("/settings");
+  await page.getByRole("button", { name: /Instruments & setups/ }).click();
+  const input = page.getByPlaceholder("HTF Bias Aligned");
+  await input.fill(custom);
+  await input.locator("xpath=ancestor::form").getByRole("button", { name: "Add" }).click();
+  await expect(page.getByText(custom).first()).toBeVisible();
+
+  // Attach it, plus a seeded one, to a new trade.
+  await page.goto("/trades/new");
+  await page.fill('input[name="symbol"]', "NQ");
+  await page.fill('input[name="positionSize"]', "2");
+  await page.fill('input[name="entryPrice"]', "15000");
+  await page.fill('input[name="exitPrice"]', "15040");
+  await page.fill('input[name="stopLoss"]', "14980");
+  await page.getByRole("button", { name: custom, exact: true }).click();
+  await page.getByRole("button", { name: "HTF Bias Aligned", exact: true }).click();
+  await page.getByRole("button", { name: /Save trade/ }).click();
+  await page.waitForURL(/\/trades\/[a-z0-9]+$/);
+
+  // They persist on the trade record.
+  await expect(page.getByText("Confluences, mistakes & tags")).toBeVisible();
+  await expect(page.getByText(custom).first()).toBeVisible();
+  await expect(page.getByText("HTF Bias Aligned").first()).toBeVisible();
+
+  // And they drive the analytics breakdown.
+  await page.goto("/analytics?range=all");
+  await expect(page.getByText("Confluence analysis")).toBeVisible();
+  await expect(page.getByText("Win rate by confluence count")).toBeVisible();
+  await expect(page.getByRole("cell", { name: custom }).first()).toBeVisible();
+
+  // And the global filter.
+  await page.goto("/trades?range=all");
+  await page.getByRole("button", { name: /^Filters/ }).click();
+  await expect(page.getByText("Confluence").first()).toBeVisible();
+});
+
 test("CSV export returns the trades", async ({ page }) => {
   await signIn(page);
   const response = await page.request.get("/api/export?type=trades&range=all");

@@ -27,6 +27,7 @@ model User {
   setups        Setup[]
   tags          Tag[]
   mistakes      MistakeType[]
+  confluences   Confluence[]
   sessions      TradingSession[]
   dailyJournals DailyJournal[]
   periodReviews PeriodReview[]
@@ -206,8 +207,9 @@ model Trade {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tags     TradeTag[]
-  mistakes TradeMistake[]
+  tags        TradeTag[]
+  mistakes    TradeMistake[]
+  confluences TradeConfluence[]
   images   TradeImage[]
 
   @@index([userId, tradeDate])
@@ -316,4 +318,29 @@ model Goal {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+model Confluence {
+  id          String  @id @default(cuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  isDemo      Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  trades TradeConfluence[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model TradeConfluence {
+  tradeId      String
+  trade        Trade      @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  confluenceId String
+  confluence   Confluence @relation(fields: [confluenceId], references: [id], onDelete: Cascade)
+
+  @@id([tradeId, confluenceId])
+  @@index([confluenceId])
 }

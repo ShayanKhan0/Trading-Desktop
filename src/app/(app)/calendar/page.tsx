@@ -124,9 +124,9 @@ export default async function CalendarPage({ searchParams }: { searchParams: Sea
                             className={cn(
                               "num px-3 py-2.5 text-right text-xs font-semibold",
                               month.netPnl > 0
-                                ? "text-emerald-400"
+                                ? "text-up"
                                 : month.netPnl < 0
-                                  ? "text-rose-400"
+                                  ? "text-down"
                                   : "text-ink-muted",
                             )}
                           >

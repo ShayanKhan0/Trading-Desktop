@@ -19,7 +19,7 @@ export function BreakdownTable({
   showShare?: boolean;
 }) {
   const pnlClass = (value: number) =>
-    value > 0 ? "text-emerald-400" : value < 0 ? "text-rose-400" : "text-ink-muted";
+    value > 0 ? "text-up" : value < 0 ? "text-down" : "text-ink-muted";
 
   const columns: Column<Row>[] = [
     {
@@ -56,7 +56,7 @@ export function BreakdownTable({
       align: "right",
       sortValue: (row) => row.winRate,
       render: (row) => (
-        <span className={cn("num text-xs", row.winRate >= 50 ? "text-emerald-400" : "text-ink")}>
+        <span className={cn("num text-xs", row.winRate >= 50 ? "text-up" : "text-ink")}>
           {formatPercent(row.winRate)}
         </span>
       ),
@@ -111,7 +111,7 @@ export function BreakdownTable({
             sortValue: (row: Row) => (Number.isFinite(row.profitFactor) ? row.profitFactor : 999),
             render: (row: Row) => (
               <span
-                className={cn("num text-xs", row.profitFactor >= 1 ? "text-emerald-400" : "text-rose-400")}
+                className={cn("num text-xs", row.profitFactor >= 1 ? "text-up" : "text-down")}
               >
                 {formatRatio(row.profitFactor)}
               </span>
@@ -134,7 +134,7 @@ export function BreakdownTable({
             align: "right" as const,
             sortValue: (row: Row) => row.bestTrade,
             render: (row: Row) => (
-              <span className="num text-xs text-emerald-400">
+              <span className="num text-xs text-up">
                 {formatCurrency(row.bestTrade, currency)}
               </span>
             ),
@@ -145,7 +145,7 @@ export function BreakdownTable({
             align: "right" as const,
             sortValue: (row: Row) => row.worstTrade,
             render: (row: Row) => (
-              <span className="num text-xs text-rose-400">
+              <span className="num text-xs text-down">
                 {formatCurrency(row.worstTrade, currency)}
               </span>
             ),

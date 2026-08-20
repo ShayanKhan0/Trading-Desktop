@@ -70,10 +70,10 @@ export function Badge({
 }) {
   const tones = {
     neutral: "border-line bg-surface-2 text-ink-muted",
-    up: "border-emerald-500/25 bg-emerald-500/10 text-emerald-400",
-    down: "border-rose-500/25 bg-rose-500/10 text-rose-400",
+    up: "border-up/25 bg-up-soft text-up",
+    down: "border-down/25 bg-down-soft text-down",
     accent: "border-accent/30 bg-accent/10 text-accent",
-    warn: "border-amber-500/25 bg-amber-500/10 text-amber-400",
+    warn: "border-warn/25 bg-warn-soft text-warn",
   };
   return (
     <span

@@ -65,7 +65,7 @@ export function BreakdownBarChart({
 
   const tooltip = (
     <Tooltip
-      cursor={{ fill: "rgba(255,255,255,0.03)" }}
+      cursor={{ fill: "rgba(154,101,55,0.06)" }}
       content={({ active, payload }) => {
         if (!active || !payload?.length) return null;
         const row = payload[0].payload as BreakdownRow;
@@ -76,7 +76,7 @@ export function BreakdownBarChart({
               {
                 label: "Net P&L",
                 value: formatSignedCurrency(row.netPnl, currency),
-                tone: row.netPnl >= 0 ? "text-emerald-400" : "text-rose-400",
+                tone: row.netPnl >= 0 ? "text-up" : "text-down",
               },
               { label: "Win rate", value: formatPercent(row.winRate) },
               { label: "Avg R", value: formatR(row.avgR) },

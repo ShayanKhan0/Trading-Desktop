@@ -104,8 +104,8 @@ export function SortableTable<T extends { key?: string; id?: string }>({
               key={row.key ?? row.id ?? index}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
               className={cn(
-                "border-b border-line-soft last:border-0 transition-colors",
-                onRowClick && "cursor-pointer hover:bg-surface-2",
+                "row-hover border-b border-line-soft last:border-0",
+                onRowClick && "cursor-pointer",
               )}
             >
               {columns.map((column) => (

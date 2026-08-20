@@ -54,7 +54,7 @@ export async function removeDemoData() {
 
 /* ---- Taxonomy management (instruments, strategies, setups, sessions, tags, mistakes) ---- */
 
-type Entity = "instrument" | "strategy" | "setup" | "session" | "tag" | "mistake";
+type Entity = "instrument" | "strategy" | "setup" | "session" | "tag" | "mistake" | "confluence";
 
 export async function createTaxonomyItem(_prev: unknown, formData: FormData) {
   const user = await requireUser();
@@ -117,6 +117,15 @@ export async function createTaxonomyItem(_prev: unknown, formData: FormData) {
       case "mistake":
         await prisma.mistakeType.create({ data: { userId: user.id, name } });
         break;
+      case "confluence":
+        await prisma.confluence.create({
+          data: {
+            userId: user.id,
+            name,
+            description: String(formData.get("description") ?? "").trim() || null,
+          },
+        });
+        break;
       default:
         return { error: "Unknown item type" };
     }
@@ -150,6 +159,9 @@ export async function deleteTaxonomyItem(entity: Entity, id: string) {
       break;
     case "mistake":
       await prisma.mistakeType.deleteMany({ where });
+      break;
+    case "confluence":
+      await prisma.confluence.deleteMany({ where });
       break;
   }
 

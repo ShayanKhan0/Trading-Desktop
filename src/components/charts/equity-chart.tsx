@@ -92,7 +92,7 @@ export function EquityChart({
               />
               <YAxis {...AXIS} tickFormatter={(v: number) => formatCurrency(v, currency, true)} width={62} />
               <Tooltip
-                cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                cursor={{ fill: "rgba(154,101,55,0.06)" }}
                 content={({ active, payload }) => {
                   if (!active || !payload?.length) return null;
                   const row = payload[0].payload as { date: string; netPnl: number; trades: number };
@@ -103,7 +103,7 @@ export function EquityChart({
                         {
                           label: "Net P&L",
                           value: formatSignedCurrency(row.netPnl, currency),
-                          tone: row.netPnl >= 0 ? "text-emerald-400" : "text-rose-400",
+                          tone: row.netPnl >= 0 ? "text-up" : "text-down",
                         },
                         { label: "Trades", value: row.trades },
                       ]}
@@ -131,7 +131,8 @@ export function EquityChart({
                 stroke={ACCENT}
                 strokeWidth={2}
                 dot={false}
-                isAnimationActive={false}
+                animationDuration={650}
+                animationEasing="ease-out"
               />
             </LineChart>
           </ResponsiveContainer>
@@ -159,7 +160,8 @@ export function EquityChart({
                 stroke={stroke}
                 strokeWidth={2}
                 fill="url(#equityFill)"
-                isAnimationActive={false}
+                animationDuration={650}
+                animationEasing="ease-out"
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -195,12 +197,12 @@ function EquityTooltip({
             : {
                 label: "Cumulative P&L",
                 value: formatSignedCurrency(point.cumulativePnl, currency),
-                tone: point.cumulativePnl >= 0 ? "text-emerald-400" : "text-rose-400",
+                tone: point.cumulativePnl >= 0 ? "text-up" : "text-down",
               },
         {
           label: "Trade P&L",
           value: formatSignedCurrency(point.pnl, currency),
-          tone: point.pnl >= 0 ? "text-emerald-400" : "text-rose-400",
+          tone: point.pnl >= 0 ? "text-up" : "text-down",
         },
         { label: "Trade #", value: point.index },
       ]}

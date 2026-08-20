@@ -2,6 +2,7 @@ import "server-only";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import {
+  DEFAULT_CONFLUENCES,
   DEFAULT_MISTAKES,
   DEFAULT_SESSIONS,
   DEFAULT_SETUPS,
@@ -67,7 +68,32 @@ export async function seedTaxonomy(userId: string) {
     data: DEFAULT_MISTAKES.map((name) => ({ name, userId })),
     skipDuplicates: true,
   });
+
+  await prisma.confluence.createMany({
+    data: DEFAULT_CONFLUENCES.map((c) => ({ ...c, userId })),
+    skipDuplicates: true,
+  });
 }
+
+/**
+ * Demo-only win-rate deltas per confluence. Stacking supportive confluences
+ * lifts the win rate and the weak ones drag it down, so the confluence
+ * breakdown has a genuine pattern to find rather than uniform noise.
+ */
+const CONFLUENCE_EDGE: Record<string, number> = {
+  "HTF Bias Aligned": 0.06,
+  "Market Structure Shift": 0.05,
+  "Liquidity Swept": 0.04,
+  "Fair Value Gap": 0.03,
+  "Killzone Timing": 0.03,
+  "Order Block": 0.02,
+  "Daily Level": 0.02,
+  "Trend Continuation": 0.02,
+  "Volume Confirmation": 0.01,
+  "Breaker Block": 0.01,
+  "Round Number": -0.02,
+  "Divergence": -0.03,
+};
 
 /** Deterministic PRNG so demo data is reproducible and reviewable. */
 function makeRandom(seed: number) {
@@ -100,12 +126,13 @@ export async function generateDemoData(userId: string, months = 6) {
   await clearDemoData(userId);
   await seedTaxonomy(userId);
 
-  const [instruments, setups, sessions, tags, mistakes, strategies] = await Promise.all([
+  const [instruments, setups, sessions, tags, mistakes, confluences, strategies] = await Promise.all([
     prisma.instrument.findMany({ where: { userId } }),
     prisma.setup.findMany({ where: { userId } }),
     prisma.tradingSession.findMany({ where: { userId } }),
     prisma.tag.findMany({ where: { userId } }),
     prisma.mistakeType.findMany({ where: { userId } }),
+    prisma.confluence.findMany({ where: { userId } }),
     prisma.strategy.findMany({ where: { userId } }),
   ]);
 
@@ -148,6 +175,7 @@ export async function generateDemoData(userId: string, months = 6) {
   const trades: Prisma.TradeUncheckedCreateInput[] = [];
   const tradeTagLinks: { tradeIndex: number; tagId: string }[] = [];
   const tradeMistakeLinks: { tradeIndex: number; mistakeId: string }[] = [];
+  const tradeConfluenceLinks: { tradeIndex: number; confluenceId: string }[] = [];
   const journalDays: { date: Date; trades: number }[] = [];
 
   for (let day = new Date(start); day <= end; day.setUTCDate(day.getUTCDate() + 1)) {
@@ -202,7 +230,23 @@ export async function generateDemoData(userId: string, months = 6) {
       const entryPrice = round(basePrice, instrument.market === "FOREX" ? 5 : 2);
       const stopLoss = round(entryPrice - dir * stopDistance, instrument.market === "FOREX" ? 5 : 2);
 
-      const isWin = random() < edge.winRate;
+      // Confluences are chosen before the outcome so their edge can shift it.
+      const chosenConfluences: typeof confluences = [];
+      if (confluences.length) {
+        const wanted = 1 + Math.floor(random() * 5); // 1-5 stacked reasons
+        const pool = [...confluences];
+        for (let c = 0; c < wanted && pool.length; c += 1) {
+          const [taken] = pool.splice(Math.floor(random() * pool.length), 1);
+          chosenConfluences.push(taken);
+        }
+      }
+      const confluenceDelta = chosenConfluences.reduce(
+        (sum, c) => sum + (CONFLUENCE_EDGE[c.name] ?? 0),
+        0,
+      );
+      const effectiveWinRate = Math.max(0.12, Math.min(0.82, edge.winRate + confluenceDelta));
+
+      const isWin = random() < effectiveWinRate;
       const targetR = edge.avgWinR * (0.6 + random() * 0.9);
       const takeProfit = round(entryPrice + dir * stopDistance * targetR, instrument.market === "FOREX" ? 5 : 2);
 
@@ -287,6 +331,10 @@ export async function generateDemoData(userId: string, months = 6) {
         isDemo: true,
       });
 
+      for (const confluence of chosenConfluences) {
+        tradeConfluenceLinks.push({ tradeIndex: index, confluenceId: confluence.id });
+      }
+
       // Tags: A+ setups on high quality trades, FOMO-ish tags when discipline is low.
       if (setupQuality >= 8) {
         const tag = tags.find((t) => t.name === "A+ Setup");
@@ -343,6 +391,16 @@ export async function generateDemoData(userId: string, months = 6) {
       data: tradeTagLinks.map((link) => ({
         tradeId: createdIds[link.tradeIndex],
         tagId: link.tagId,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  if (tradeConfluenceLinks.length) {
+    await prisma.tradeConfluence.createMany({
+      data: tradeConfluenceLinks.map((link) => ({
+        tradeId: createdIds[link.tradeIndex],
+        confluenceId: link.confluenceId,
       })),
       skipDuplicates: true,
     });
