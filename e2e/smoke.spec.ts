@@ -153,3 +153,37 @@ async function signIn(page: import("@playwright/test").Page) {
   await page.click('button[type="submit"]');
   await page.waitForURL("**/dashboard");
 }
+
+test("a brand-new account renders every page without data", async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const fresh = `empty+${Date.now()}@example.com`;
+
+  await page.goto("/signup");
+  await page.fill("#email", fresh);
+  await page.fill("#password", password);
+  await page.click('button[type="submit"]');
+  await page.waitForURL("**/dashboard");
+
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  for (const [path, expected] of [
+    ["/dashboard", "Nothing logged for this period yet"],
+    ["/trades", "No trades match the current filters"],
+    ["/analytics", "No trades in this range"],
+    ["/calendar", "No trades in this range"],
+    ["/journal", "No trades logged on this date"],
+    ["/goals", "No goals yet"],
+    ["/reviews", "Weekly reflection"],
+    ["/settings", "Account"],
+    ["/trades/new", "Trade details"],
+  ] as const) {
+    const response = await page.goto(path);
+    expect(response?.status(), `${path} status`).toBeLessThan(400);
+    await expect(page.getByText(expected).first(), `${path} content`).toBeVisible();
+  }
+
+  expect(errors, `client errors: ${errors.join(", ")}`).toHaveLength(0);
+  await context.close();
+});

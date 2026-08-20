@@ -111,6 +111,21 @@ vercel env add AUTH_SECRET production
 vercel --prod
 ```
 
+### Connection strings — read this before the first deploy
+
+`prisma migrate deploy` runs during the Vercel build, and **transaction-mode connection poolers
+cannot run migrations.** This is the single most common first-deploy failure.
+
+- **Neon** — the pooled string (`...-pooler...`) works for both the app and migrations. Append
+  `?sslmode=require`.
+- **Supabase** — the port `6543` pooler string will fail migrations. Use the **direct** connection
+  string on port `5432` for `DATABASE_URL`, or set the pooled string for runtime and run
+  `npx prisma migrate deploy` locally against the direct string once, then drop `prisma migrate
+  deploy` from the `vercel.json` build command.
+- **Any pooler** — if you see `prepared statement "s0" already exists` or a migration advisory-lock
+  timeout at build time, you are on a transaction-mode pooler. Switch `DATABASE_URL` to the direct
+  connection string.
+
 ### Post-deployment checklist
 - [ ] Sign up creates an account and lands on the dashboard
 - [ ] Load demo data populates the equity curve, calendar and analytics
@@ -183,4 +198,22 @@ npm run build && npm start          # in one shell
 npx playwright test                 # in another
 ```
 
-Set `E2E_BASE_URL` to run the suite against a deployed environment.
+Set `E2E_BASE_URL` to run the suite against a deployed environment:
+
+```bash
+E2E_BASE_URL=https://your-app.vercel.app npx playwright test
+```
+
+The suite creates its own throwaway accounts, so it is safe to run against a live deployment.
+
+---
+
+## Troubleshooting
+
+| Symptom | Cause and fix |
+| --- | --- |
+| Build fails on `prisma migrate deploy` | You are on a transaction-mode connection pooler. See *Connection strings* above. |
+| `AUTH_SECRET is not set` | The variable is missing from the deployment environment. Add it and redeploy. |
+| Signed out on every request | `AUTH_SECRET` changed between deploys, invalidating existing session tokens. Sign in again. |
+| Charts render empty with trades present | The active date range excludes them — the filter bar defaults to *This month*. Switch to *All time*. |
+| Screenshot upload rejected | Images are downscaled to a 1600px max edge and capped at 3MB each, 12 per trade. |
