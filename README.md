@@ -59,7 +59,7 @@ cd tradeledger
 npm install
 
 cp .env.example .env
-# Fill in DATABASE_URL and AUTH_SECRET (generate with: openssl rand -base64 32)
+# Fill in DATABASE_URL, DIRECT_URL and AUTH_SECRET (generate with: openssl rand -base64 32)
 
 npx prisma migrate deploy   # create the schema
 npm run dev                 # http://localhost:3000
@@ -72,7 +72,8 @@ with six months of generated trades so every chart and report has something to s
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `DATABASE_URL` | yes | PostgreSQL connection string. Managed providers usually need `?sslmode=require`. |
+| `DATABASE_URL` | yes | PostgreSQL connection string used for runtime queries. On a serverless host use the **pooled** string. Managed providers usually need `?sslmode=require`. |
+| `DIRECT_URL` | yes | **Direct** (unpooled) connection string, used only by `prisma migrate`. On a database with no pooler, set it to the same value as `DATABASE_URL`. |
 | `AUTH_SECRET` | yes | Secret used to sign session JWTs. Generate with `openssl rand -base64 32`. |
 
 ### Scripts
@@ -94,10 +95,12 @@ with six months of generated trades so every chart and report has something to s
 The app is a standard Next.js application and deploys cleanly to Vercel.
 
 1. **Create a PostgreSQL database.** [Neon](https://neon.tech) and [Supabase](https://supabase.com)
-   both have free tiers. Copy the pooled connection string.
+   both have free tiers. Copy **both** connection strings — pooled and direct (see
+   *Connection strings* below).
 2. **Import the repository into Vercel** (New Project → import from Git).
 3. **Set environment variables** in Vercel → Settings → Environment Variables:
-   - `DATABASE_URL` — your connection string
+   - `DATABASE_URL` — the pooled connection string
+   - `DIRECT_URL` — the direct connection string
    - `AUTH_SECRET` — `openssl rand -base64 32`
 4. **Deploy.** `vercel.json` sets the build command to
    `prisma generate && prisma migrate deploy && next build`, so migrations run automatically on
@@ -109,24 +112,32 @@ Or from the CLI:
 npm i -g vercel
 vercel link
 vercel env add DATABASE_URL production
+vercel env add DIRECT_URL production
 vercel env add AUTH_SECRET production
 vercel --prod
 ```
 
 ### Connection strings — read this before the first deploy
 
-`prisma migrate deploy` runs during the Vercel build, and **transaction-mode connection poolers
-cannot run migrations.** This is the single most common first-deploy failure.
+The app needs **two** connection strings, because they do different jobs:
 
-- **Neon** — the pooled string (`...-pooler...`) works for both the app and migrations. Append
-  `?sslmode=require`.
-- **Supabase** — the port `6543` pooler string will fail migrations. Use the **direct** connection
-  string on port `5432` for `DATABASE_URL`, or set the pooled string for runtime and run
-  `npx prisma migrate deploy` locally against the direct string once, then drop `prisma migrate
-  deploy` from the `vercel.json` build command.
-- **Any pooler** — if you see `prepared statement "s0" already exists` or a migration advisory-lock
-  timeout at build time, you are on a transaction-mode pooler. Switch `DATABASE_URL` to the direct
-  connection string.
+| Variable | Which string | Why |
+| --- | --- | --- |
+| `DATABASE_URL` | the **pooled** one (`-pooler` in the host) | Serverless functions open and drop connections constantly; the pooler keeps the database from running out. |
+| `DIRECT_URL` | the **direct** one (no `-pooler`) | `prisma migrate deploy` takes a Postgres advisory lock, and a transaction-mode pooler cannot hold one across statements. |
+
+Both are on the Neon project dashboard — the connection-string panel has a **Pooled connection**
+toggle that switches between them. Append `?sslmode=require` to each.
+
+If your database has **no** pooler (local Postgres, a plain VPS), set both variables to the same
+direct string. That is what `.env` does for local development.
+
+**Symptoms of getting this wrong**, all at build time, all fixed by pointing `DIRECT_URL` at the
+direct string:
+
+- `prepared statement "s0" already exists`
+- `Timed out trying to acquire a postgres advisory lock`
+- `Error: P1001` / the build hanging on *Applying migration*
 
 ### Post-deployment checklist
 - [ ] Sign up creates an account and lands on the dashboard

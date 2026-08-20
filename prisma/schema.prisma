@@ -4,7 +4,12 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Runtime queries. On a serverless host this should be the POOLED connection string.
+  url       = env("DATABASE_URL")
+  // Migrations and introspection. Must be a DIRECT (unpooled) connection: Prisma Migrate
+  // takes a Postgres advisory lock, which transaction-mode poolers such as PgBouncer
+  // cannot hold across statements. On a non-pooled database set both to the same value.
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
