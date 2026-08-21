@@ -67,7 +67,14 @@ test("creating a trade persists it and updates the trades table", async ({ page 
   await expect(page.getByText("+$1,995.50", { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: /Save trade/i }).click();
-  await page.waitForURL(/\/trades\/[a-z0-9]+$/);
+  await page.waitForURL(/\/trades\/(?!new$)[a-z0-9]+$/, {
+    timeout: 20_000,
+  }).catch(() => {
+    throw new Error(
+      `Saving the trade did not navigate to a trade page — still on ${page.url()}. ` +
+        `The server action failed rather than the detail page rendering wrong.`,
+    );
+  });
 
   await expect(page.getByRole("heading", { name: /NQ · Long/ })).toBeVisible();
   await expect(page.getByText("+$1,995.50", { exact: true }).first()).toBeVisible();
@@ -143,7 +150,14 @@ test("confluences can be created, attached to a trade, and analysed", async ({ p
   await page.getByRole("button", { name: custom, exact: true }).click();
   await page.getByRole("button", { name: "HTF Bias Aligned", exact: true }).click();
   await page.getByRole("button", { name: /Save trade/ }).click();
-  await page.waitForURL(/\/trades\/[a-z0-9]+$/);
+  await page.waitForURL(/\/trades\/(?!new$)[a-z0-9]+$/, {
+    timeout: 20_000,
+  }).catch(() => {
+    throw new Error(
+      `Saving the trade did not navigate to a trade page — still on ${page.url()}. ` +
+        `The server action failed rather than the detail page rendering wrong.`,
+    );
+  });
 
   // They persist on the trade record.
   await expect(page.getByText("Confluences, mistakes & tags")).toBeVisible();
